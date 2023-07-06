@@ -15,8 +15,9 @@ const createUser = async function (
               name,
               email,
               password,
-              account
-              ) VALUES (?, ?, ?, ?, ?);
+              account,
+              point
+              ) VALUES (?, ?, ?, ?, ?,1000000);
           `,
       [typeId, name, email, hashedPassword, account]
     );
@@ -28,6 +29,18 @@ const createUser = async function (
   }
 };
 
+const usersEmail = async function (userId) {
+  try {
+    const query = 'SELECT email FROM users WHERE id = ?';
+    const result = await dataSource.query(query, [userId]);
+    const email = result[0]?.email || null;
+    return email;
+  } catch (err) {
+    const error = new Error('Failed to get user email');
+    error.statusCode = 500;
+    throw error;
+  }
+};
 const getUserByEmail = async (email) => {
   try {
     const [result] = await dataSource.query(
@@ -86,4 +99,5 @@ module.exports = {
   createUser,
   getUserByEmail,
   getUserByAccount,
+  usersEmail,
 };
