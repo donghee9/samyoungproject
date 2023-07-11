@@ -42,7 +42,7 @@ const signUp = async (typeId, name, email, password, account) => {
     hashedPassword,
     account
   );
-  await sendEmail(email);
+  sendEmail(email);
   return createUser;
 };
 
@@ -54,17 +54,58 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = async function (userEmail) {
+const sendEmail = function (userEmail) {
   console.log(userEmail);
   const mailOptions = {
     from: 'Sujeongwa6@gmail.com',
     to: userEmail,
     subject: 'WELCOME TO SJG',
-    html: '<p><strong>WELCOME TO SJG TILE!</strong></p><p>ENJOY YOUR NEVER-EXPIRING WELCOME GIFT OF <u>10,000,000 WON</u></p><p>YOU CAN USE IT AT ANY TIME.</p><p>SJG타일에 가입하신 것을 환영합니다!!.</p><p>유효기간이 없는 <u>10,000,000포인트</u>를 지급했습니다.</p><p>언제든 사용하세요!</p>',
+    html: `<div
+    style="
+      width: 70vw;
+      height: 70vh;
+      background: #fffef2;
+      border: 3px solid #333;
+      padding: 1em;
+      margin: 2em auto;
+    "
+  >
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #331;
+        width: 70vw;
+        height: 70vh;
+      "
+    >
+      <p style="font-size: 30px; border-bottom: 1px solid #333">
+        <strong>WELCOME TO SJG TILE!</strong>
+      </p>
+      <div style="line-height: 10px; text-align: center">
+        <div style="margin-bottom: 50px; font-size: 16px; line-height: 15px">
+          <p>ENJOY YOUR NEVER-EXPIRING WELCOME GIFT OF</p>
+          <u style="font-weight: 800; font-size: 18px">10,000,000 WON</u>
+          <p>YOU CAN USE IT AT ANY TIME.</p>
+        </div>
+        <div style="line-height: 15px">
+          <p>SJG타일에 가입하신 것을 환영합니다!!.</p>
+          <p>
+            유효기간이 없는
+            <u style="font-weight: 800; font-size: 18px">10,000,000포인트</u
+            >를 지급했습니다.
+          </p>
+          <p>언제든 사용하세요!</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    const info = transporter.sendMail(mailOptions);
     console.log('EMAIL_SENT ' + info.response);
   } catch (error) {
     console.log(error);
@@ -74,8 +115,8 @@ const sendEmail = async function (userEmail) {
 
 const signUpMail = async (newUser) => {
   try {
-    const user = await userDao.createUserEmail(newUser);
-    await sendEmail(user.email);
+    const user = userDao.createUserEmail(newUser);
+    sendEmail(user.email);
     return user;
   } catch (error) {
     throw error;

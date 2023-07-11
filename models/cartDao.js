@@ -5,31 +5,42 @@ const queryCartItems = async (userId) => {
     const data = await dataSource.query(
       `
       SELECT
-        carts.id AS cartId,
-        users.id AS userId,
-        users.name,
-        users.email,
-        carts.product_id AS productId,
-        categories.title AS kindId,
-        products.name AS tileName,
-        products.sub_category_id AS sizeId,
-        products.surface_type_id AS surfaceTypeId,
-        products.price AS price,
-        products.weight AS weight,
-        products.image_url AS imageUrl,
-        carts.quantity AS quantity
-      FROM
-        carts
-      JOIN
-        users ON carts.user_id = users.id
-      LEFT JOIN
-        products ON carts.product_id = products.id
-      JOIN
-        sub_categories ON products.sub_category_id = sub_categories.id
-      JOIN
-        categories ON sub_categories.category_id = categories.id
-      WHERE
-        users.id = ?
+      users.id AS userId,
+      users.name,
+      users.email,
+      carts.product_id AS productId,
+      categories.title AS kindId,
+      products.name AS tileName,
+      products.sub_category_id AS sizeId,
+      products.surface_type_id AS surfaceTypeId,
+      products.price AS price,
+      products.weight AS weight,
+      products.image_url AS imageUrl,
+      SUM(carts.quantity) AS quantity
+    FROM
+      carts
+    JOIN
+      users ON carts.user_id = users.id
+    LEFT JOIN
+      products ON carts.product_id = products.id
+    JOIN
+      sub_categories ON products.sub_category_id = sub_categories.id
+    JOIN
+      categories ON sub_categories.category_id = categories.id
+    WHERE
+      users.id = ?
+    GROUP BY
+      users.id,
+      users.name,
+      users.email,
+      carts.product_id,
+      categories.title,
+      products.name,
+      products.sub_category_id,
+      products.surface_type_id,
+      products.price,
+      products.weight,
+      products.image_url
         `,
       [userId]
     );
@@ -68,16 +79,16 @@ const getProductById = async (productId) => {
 
   return product;
 };
-const patchProductsInCart = async(user_id,product_name, quantity)=>{
-    try{
-        if(quantity == 0){
-            const err = new Error("0개 미만으로는 숫자를 변경할 수 없습니다.",error)
-            err.statusCode = 400;
-            throw err;
-        }
-      console.log(user_id);
-      const cartPatch = await dataSource.query(
-          `
+const patchProductsInCart = async (user_id, product_name, quantity) => {
+  try {
+    if (quantity == 0) {
+      const err = new Error('0개 미만으로는 숫자를 변경할 수 없습니다.', error);
+      err.statusCode = 400;
+      throw err;
+    }
+    console.log(user_id);
+    const cartPatch = await dataSource.query(
+      `
           UPDATE 
           carts 
           SET quantity = ?
